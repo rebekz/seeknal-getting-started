@@ -1,0 +1,5 @@
+kind: source
+name: sales_snapshot
+description: "Quarterly sales snapshot from Parquet"
+source: parquet
+table: "data/sales_snapshot.parquet"

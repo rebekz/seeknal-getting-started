@@ -1,0 +1,18 @@
+kind: transform
+name: events_cleaned
+description: "Clean sales events: remove nulls and deduplicate"
+inputs:
+  - ref: source.sales_events
+transform: |
+  SELECT
+    {{events.idCol}},
+    {{events.productCol}},
+    {{events.quantityCol}},
+    {{events.dateCol}},
+    {{events.regionCol}}
+  FROM ref('source.sales_events')
+  WHERE {{events.quantityCol}} IS NOT NULL
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY {{events.idCol}}
+    ORDER BY {{events.dateCol}} DESC
+  ) = 1

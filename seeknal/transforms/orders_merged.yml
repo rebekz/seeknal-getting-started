@@ -1,0 +1,58 @@
+kind: transform
+name: orders_merged
+description: "Merge original orders with updates, keeping latest version"
+
+columns:
+  order_id: "Order identifier (deduplicated)"
+  customer_id: "Customer identifier"
+  order_date: "Order date"
+  status: "Normalized order status"
+  revenue: "Validated order revenue"
+  items: "Item count"
+  quality_flag: "Data quality indicator"
+  source_batch: "Origin: 'original' or 'update'"
+  merged_at: "Timestamp when merge was performed"
+
+inputs:
+  - ref: transform.orders_cleaned
+  - ref: source.orders_updates
+
+transform: |
+  WITH combined AS (
+    -- Original cleaned orders
+    SELECT
+      order_id, customer_id, order_date, status,
+      revenue, items, quality_flag,
+      'original' as source_batch
+    FROM ref('transform.orders_cleaned')
+
+    UNION ALL
+
+    -- Updates and corrections (apply same cleaning)
+    SELECT
+      order_id,
+      customer_id,
+      DATE(order_date) as order_date,
+      UPPER(TRIM(status)) as status,
+      CASE WHEN revenue >= 0 THEN revenue ELSE NULL END as revenue,
+      CASE WHEN items >= 0 THEN items ELSE 0 END as items,
+      CASE
+        WHEN revenue < 0 OR items < 0 THEN 1
+        ELSE 0
+      END as quality_flag,
+      'update' as source_batch
+    FROM ref('source.orders_updates')
+  )
+
+  SELECT
+    order_id, customer_id, order_date, status,
+    revenue, items, quality_flag, source_batch,
+    CURRENT_TIMESTAMP as merged_at
+  FROM combined
+  -- Keep updates over originals, then latest date
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY order_id
+    ORDER BY
+      CASE WHEN source_batch = 'update' THEN 0 ELSE 1 END,
+      order_date DESC
+  ) = 1

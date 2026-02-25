@@ -1,0 +1,5 @@
+transformations:
+- id: totalAmount
+  sql: '{{events.quantityCol}} * {{products.priceCol}}'
+- id: revenueShare
+  sql: ROUND(total_revenue * 100.0 / SUM(total_revenue) OVER (), 2)

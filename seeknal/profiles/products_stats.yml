@@ -1,0 +1,5 @@
+kind: profile
+name: products_stats
+description: "Statistical profile of the products catalog"
+inputs:
+  - ref: source.products

@@ -1,0 +1,36 @@
+kind: transform
+name: daily_revenue
+description: "Daily revenue summary from cleaned orders"
+
+columns:
+  order_date: "Date of orders"
+  total_orders: "Total number of orders"
+  completed_orders: "Count of completed orders"
+  pending_orders: "Count of pending orders"
+  total_revenue: "Sum of all revenue"
+  avg_order_value: "Average revenue per order"
+  max_order_value: "Highest single order revenue"
+  total_items: "Total items across all orders"
+  flagged_orders: "Count of quality-flagged orders"
+  unique_customers: "Distinct customer count"
+
+inputs:
+  - ref: transform.orders_merged
+
+transform: |
+  SELECT
+    order_date,
+    COUNT(*) as total_orders,
+    COUNT(CASE WHEN status = 'COMPLETED' THEN 1 END) as completed_orders,
+    COUNT(CASE WHEN status = 'PENDING' THEN 1 END) as pending_orders,
+    COALESCE(SUM(revenue), 0) as total_revenue,
+    ROUND(COALESCE(AVG(revenue), 0), 2) as avg_order_value,
+    MAX(revenue) as max_order_value,                         -- add this line
+    SUM(items) as total_items,
+    COUNT(CASE WHEN quality_flag = 1 THEN 1 END) as flagged_orders,
+    COUNT(DISTINCT customer_id) as unique_customers              -- add this line
+
+  FROM ref('transform.orders_merged')
+  WHERE status != 'CANCELLED'
+  GROUP BY order_date
+  ORDER BY order_date

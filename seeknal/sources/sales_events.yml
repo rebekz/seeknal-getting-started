@@ -1,0 +1,11 @@
+kind: source
+name: sales_events
+description: "Sales transaction events from JSONL"
+source: jsonl
+table: "data/sales_events.jsonl"
+columns:
+  event_id: "Unique event identifier"
+  product_id: "Product reference"
+  quantity: "Units sold"
+  sale_date: "Date of sale"
+  region: "Sales region"

@@ -1,0 +1,12 @@
+connections:
+  local_pg:
+    type: postgresql
+    host: localhost
+    port: 5434
+    database: ecommerce_dev
+    user: dev_user
+    password: dev_pass
+
+source_defaults:
+  postgresql:
+    connection: local_pg

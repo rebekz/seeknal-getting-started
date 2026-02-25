@@ -1,0 +1,16 @@
+kind: transform
+name: sales_summary
+description: "Revenue summary by product category"
+inputs:
+  - ref: transform.sales_enriched
+transform: |
+  SELECT
+    {{products.categoryCol}},
+    COUNT(*) AS order_count,
+    SUM({{events.quantityCol}}) AS total_units,
+    SUM(total_amount) AS total_revenue,
+    ROUND(AVG(total_amount), 2) AS avg_order_value
+  FROM ref('transform.sales_enriched')
+  WHERE {{rules.completedOrder}}
+  GROUP BY {{products.categoryCol}}
+  ORDER BY total_revenue DESC

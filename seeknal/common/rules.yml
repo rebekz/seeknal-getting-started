@@ -1,0 +1,7 @@
+rules:
+- id: hasQuantity
+  value: quantity IS NOT NULL AND quantity > 0
+- id: validPrice
+  value: price >= 0 AND price < 10000
+- id: completedOrder
+  value: category IS NOT NULL

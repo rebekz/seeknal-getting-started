@@ -1,0 +1,13 @@
+# Seeknal
+profiles.yml
+target/
+*.duckdb
+*.duckdb.wal
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.DS_Store
+seeknal.db

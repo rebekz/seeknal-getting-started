@@ -1,0 +1,12 @@
+kind: source
+name: raw_orders
+description: "Raw e-commerce order data"
+source: csv
+table: "data/orders.csv"
+columns:
+  order_id: "Order identifier"
+  customer_id: "Customer identifier"
+  order_date: "Order timestamp"
+  status: "Order status"
+  revenue: "Order revenue in USD"
+  items: "Number of items"

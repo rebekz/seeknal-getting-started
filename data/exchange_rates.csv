@@ -1,0 +1,5 @@
+region,currency,rate_to_usd
+north,USD,1.0
+south,EUR,1.08
+east,GBP,1.27
+west,JPY,0.0067

@@ -1,0 +1,25 @@
+kind: rule
+name: products_quality
+description: "Validate product data quality via profile stats"
+inputs:
+  - ref: profile.products_stats
+rule:
+  type: profile_check
+  checks:
+    # Table-level: ensure we have data
+    - metric: row_count
+      fail: "= 0"
+
+    # Column-level: price sanity
+    - column: price
+      metric: avg
+      warn: "> 50"
+
+    - column: price
+      metric: null_percent
+      fail: "> 20"
+
+    # Category diversity
+    - column: category
+      metric: distinct_count
+      fail: "< 2"

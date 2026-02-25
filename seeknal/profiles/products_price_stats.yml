@@ -1,0 +1,9 @@
+kind: profile
+name: products_price_stats
+description: "Focused profile on price and category"
+inputs:
+  - ref: source.products
+profile:
+  columns: [price, category]
+  params:
+    max_top_values: 3

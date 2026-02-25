@@ -1,0 +1,13 @@
+kind: exposure
+name: revenue_export
+description: "Daily revenue CSV export"
+owner: "analytics-team@example.com"
+type: file
+depends_on:
+  - ref: transform.daily_revenue
+tags:
+  - finance
+  - daily
+params:
+  format: csv
+  path: "target/exports/revenue_export.csv"

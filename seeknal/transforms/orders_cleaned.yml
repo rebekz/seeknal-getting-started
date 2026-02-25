@@ -1,0 +1,68 @@
+kind: transform
+name: orders_cleaned
+description: "Clean and validate order data"
+
+transform: |
+  SELECT
+    -- Primary key
+    order_id,
+
+    -- Foreign key with validation
+    CASE
+      WHEN customer_id IS NOT NULL
+      AND LENGTH(customer_id) > 0
+      THEN customer_id
+      ELSE 'UNKNOWN'
+    END as customer_id,
+
+    -- Date processing
+    DATE(order_date) as order_date,
+    CAST(order_date AS TIME) as order_time,
+
+    -- Status normalization
+    UPPER(TRIM(status)) as status,
+
+    -- Revenue validation
+    CASE
+      WHEN revenue >= 0 THEN revenue
+      ELSE NULL  -- Flag negative values
+    END as revenue,
+
+    -- Items validation
+    CASE
+      WHEN items >= 0 THEN items
+      ELSE 0
+    END as items,
+
+    -- Data quality flag
+    CASE
+      WHEN revenue < 0 THEN 1
+      WHEN customer_id IS NULL OR LENGTH(customer_id) = 0 THEN 1
+      WHEN items < 0 THEN 1
+      ELSE 0
+    END as quality_flag,
+
+    -- Audit column
+    CURRENT_TIMESTAMP as processed_at
+
+  FROM ref('source.raw_orders')
+
+  -- Remove duplicates (keep latest)
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY order_id
+    ORDER BY order_date DESC
+  ) = 1
+
+columns:
+  order_id: "Primary order identifier"
+  customer_id: "Validated customer ID (UNKNOWN if missing)"
+  order_date: "Order date extracted from timestamp"
+  order_time: "Order time extracted from timestamp"
+  status: "Normalized uppercase status"
+  revenue: "Validated revenue (NULL if negative)"
+  items: "Validated item count (0 if negative)"
+  quality_flag: "1 if data quality issue detected, 0 otherwise"
+  processed_at: "Timestamp when row was cleaned"
+
+inputs:
+  - ref: source.raw_orders

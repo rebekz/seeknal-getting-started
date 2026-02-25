@@ -1,0 +1,19 @@
+kind: transform
+name: sales_enriched
+description: "Enrich sales events with product details"
+inputs:
+  - ref: transform.events_cleaned
+  - ref: source.products
+transform: |
+  SELECT
+    e.event_id,
+    e.product_id,
+    p.name AS product_name,
+    p.category,
+    e.quantity,
+    p.price,
+    e.quantity * p.price AS total_amount,
+    e.sale_date,
+    e.region
+  FROM ref('transform.events_cleaned') e
+  LEFT JOIN ref('source.products') p ON e.product_id = p.product_id

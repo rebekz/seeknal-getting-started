@@ -1,0 +1,16 @@
+sources:
+- id: events
+  ref: source.sales_events
+  params:
+    idCol: event_id
+    productCol: product_id
+    quantityCol: quantity
+    dateCol: sale_date
+    regionCol: region
+- id: products
+  ref: source.products
+  params:
+    idCol: product_id
+    nameCol: name
+    categoryCol: category
+    priceCol: price

@@ -1,0 +1,12 @@
+kind: source
+name: orders_updates
+description: "Order corrections and new data"
+source: csv
+table: "data/orders_updates.csv"
+columns:
+  order_id: "Order identifier"
+  customer_id: "Customer identifier"
+  order_date: "Order timestamp"
+  status: "Order status"
+  revenue: "Order revenue in USD"
+  items: "Number of items"

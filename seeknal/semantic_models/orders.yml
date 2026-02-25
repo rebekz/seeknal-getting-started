@@ -1,0 +1,61 @@
+kind: semantic_model
+name: orders
+description: "E-commerce order analytics model"
+model: "ref('transform.orders_cleaned')"
+default_time_dimension: order_date
+
+entities:
+  - name: order_id
+    type: primary
+
+  - name: customer_id
+    type: foreign
+
+dimensions:
+  - name: order_date
+    type: time
+    expr: order_date
+    time_granularity: day
+    description: "Date the order was placed"
+
+  - name: status
+    type: categorical
+    expr: status
+    description: "Order status (COMPLETED, PENDING, etc.)"
+
+measures:
+  - name: total_revenue
+    expr: revenue
+    agg: sum
+    description: "Total revenue from orders"
+
+  - name: order_count
+    expr: "1"
+    agg: count
+    description: "Number of orders"
+
+  - name: avg_order_value
+    expr: revenue
+    agg: average
+    description: "Average order value"
+
+metrics:
+  - name: avg_order_value_ratio
+    type: ratio
+    description: "Average order value (revenue / orders)"
+    numerator: total_revenue
+    denominator: order_count
+
+  - name: cumulative_revenue
+    type: cumulative
+    description: "Running total of revenue"
+    measure: total_revenue
+    grain_to_date: month
+
+  - name: revenue_per_customer
+    type: derived
+    description: "Average revenue per unique customer"
+    expr: "total_revenue / unique_customers"
+    inputs:
+      - metric: total_revenue
+      - metric: unique_customers

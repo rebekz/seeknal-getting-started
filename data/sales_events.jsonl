@@ -1,0 +1,7 @@
+{"event_id":"EVT-001","product_id":"PRD-001","quantity":2,"sale_date":"2026-01-10","region":"north"}
+{"event_id":"EVT-002","product_id":"PRD-003","quantity":1,"sale_date":"2026-01-10","region":"south"}
+{"event_id":"EVT-003","product_id":"PRD-001","quantity":null,"sale_date":"2026-01-11","region":"north"}
+{"event_id":"EVT-004","product_id":"PRD-999","quantity":3,"sale_date":"2026-01-11","region":"east"}
+{"event_id":"EVT-005","product_id":"PRD-002","quantity":1,"sale_date":"2026-01-12","region":"south"}
+{"event_id":"EVT-006","product_id":"PRD-004","quantity":5,"sale_date":"2026-01-12","region":"west"}
+{"event_id":"EVT-001","product_id":"PRD-001","quantity":2,"sale_date":"2026-01-13","region":"north"}

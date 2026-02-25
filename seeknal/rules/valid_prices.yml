@@ -1,0 +1,14 @@
+kind: rule
+name: valid_prices
+description: "Ensure product prices are within valid range"
+inputs:
+  - ref: source.products
+rule:
+  type: range
+  column: price
+  params:
+    min_val: 0
+    max_val: 10000
+params:
+  severity: warn
+  error_message: "Product price outside valid range (0-10000)"

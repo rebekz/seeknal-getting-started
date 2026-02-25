@@ -1,0 +1,5 @@
+order_id,customer_id,order_date,status,revenue,items
+ORD-004,CUST-100,2026-01-16 14:20:00,completed,55.00,1
+ORD-005,CUST-102,2026-01-17 08:15:00,completed,25.00,2
+ORD-013,CUST-108,2026-01-22 11:00:00,completed,299.99,5
+ORD-014,CUST-109,2026-01-22 15:30:00,completed,42.50,1

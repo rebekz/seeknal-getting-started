@@ -1,0 +1,11 @@
+kind: source
+name: products
+description: "Product catalog from CSV"
+source: csv
+table: "data/products.csv"
+columns:
+  product_id: "Unique product identifier"
+  name: "Product name"
+  category: "Product category"
+  price: "Unit price in USD"
+  launch_date: "Product launch date"

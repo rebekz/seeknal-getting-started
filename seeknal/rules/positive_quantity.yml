@@ -1,0 +1,13 @@
+kind: rule
+name: positive_quantity
+description: "Ensure all quantities are positive"
+inputs:
+  - ref: transform.events_cleaned
+rule:
+  type: range
+  column: quantity
+  params:
+    min_val: 1
+params:
+  severity: error
+  error_message: "Non-positive quantity detected"
