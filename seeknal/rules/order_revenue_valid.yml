@@ -10,5 +10,5 @@ rule:
     min_val: 0
     max_val: 100000
 params:
-  severity: error
+  severity: warn
   error_message: "Found orders with invalid revenue values"

@@ -44,7 +44,7 @@ By the end of this module you will have:
 1. Validation rules that detect quality issues in raw data
 2. Data profiling for statistical analysis
 3. Profile-based quality checks with thresholds
-4. A clear understanding of severity levels (`error` vs `warn`)
+4. A clear understanding of severity levels (`warn` vs `error`)
 
 ---
 
@@ -68,7 +68,7 @@ rule:
     min_val: 0
     max_val: 100000
 params:
-  severity: error
+  severity: warn
   error_message: "Found orders with invalid revenue values"
 ```
 
@@ -76,7 +76,7 @@ Key fields:
 
 - `kind: rule` — declares a data quality validation node.
 - `type: range` — checks whether every value in the column falls within `min_val` and `max_val`.
-- `severity: error` — the pipeline **halts** if this check fails.
+- `severity: warn` — the pipeline **logs a warning** but continues execution. (Use `severity: error` in production when a violation should halt the pipeline.)
 - The rule references `source.raw_orders`, which still contains the original messy data including that negative revenue row.
 
 ---
@@ -100,7 +100,7 @@ rule:
   params:
     max_null_percentage: 0.0
 params:
-  severity: error
+  severity: warn
   error_message: "Found null values in critical order fields"
 ```
 
@@ -112,11 +112,11 @@ Two rule types compared:
 | Target | Single `column` | Multiple `columns` |
 | Key param | `min_val`, `max_val` | `max_null_percentage` |
 
-Setting `max_null_percentage: 0.0` means zero tolerance — even a single null triggers an error.
+Setting `max_null_percentage: 0.0` means zero tolerance — even a single null triggers a warning.
 
 ---
 
-## Step 3.3 — Run Rules and See Failures
+## Step 3.3 — Run Rules and See Warnings
 
 Execute the pipeline.
 
@@ -124,15 +124,15 @@ Execute the pipeline.
 seeknal run
 ```
 
-Expected output — the rules **fail** on raw orders:
+Expected output — the rules detect issues and **warn**:
 
 ```
 Planning pipeline...
 Executing 5 node(s)...
   ✓ source.raw_orders (13 rows)
-  ✗ rule.order_revenue_valid — FAILED: Found orders with invalid revenue values
+  ⚠ rule.order_revenue_valid — WARN: Found orders with invalid revenue values
     1 row(s) outside range [0, 100000]
-  ✗ rule.order_not_null — FAILED: Found null values in critical order fields
+  ⚠ rule.order_not_null — WARN: Found null values in critical order fields
     customer_id: 1 null(s) (7.7%)
   ✓ transform.orders_cleaned (11 rows)
   ✓ transform.daily_revenue (7 rows)
@@ -143,8 +143,10 @@ Executing 5 node(s)...
 1. Seeknal loaded the raw orders source (all 13 rows, including bad data).
 2. `order_revenue_valid` scanned the `revenue` column and found one row outside `[0, 100000]` — that is `ORD-005` with `-10.00`.
 3. `order_not_null` scanned `customer_id`, `order_date`, and `status` and found one null `customer_id` — that is `ORD-008`.
-4. Both rules reported **FAILED** because their severity is `error`.
-5. The downstream transforms (`orders_cleaned`, `daily_revenue`) still executed because they reference the cleaned data, not the raw source directly. In a strict pipeline configuration, error-severity failures can be set to halt all downstream nodes.
+4. Both rules reported **WARN** because their severity is `warn`. The pipeline continues to completion, but the warnings are logged for investigation.
+5. The downstream transforms (`orders_cleaned`, `daily_revenue`) executed successfully because they reference the cleaned data, not the raw source directly.
+
+> **Tip:** In production, you would typically set `severity: error` for critical violations (like null primary keys or negative revenue) so the pipeline **halts** before bad data reaches dashboards. We use `warn` here so you can run the full tutorial pipeline end-to-end. See the severity table in Step 3.6 for guidance on when to use each level.
 
 **Teaching moment:** These rules detected exactly the same problems you found manually in Module 1. The difference is that now the checks are automated. Every time the pipeline runs — whether triggered by a cron job at 3 AM or a CI/CD deploy — these rules execute. This is how production data teams catch problems before they reach dashboards and ML models.
 
@@ -351,9 +353,9 @@ Planning pipeline...
 Executing 10 node(s)...
   ✓ source.raw_orders (13 rows)
   ✓ source.products (6 rows)
-  ✗ rule.order_revenue_valid — FAILED: Found orders with invalid revenue values
+  ⚠ rule.order_revenue_valid — WARN: Found orders with invalid revenue values
     1 row(s) outside range [0, 100000]
-  ✗ rule.order_not_null — FAILED: Found null values in critical order fields
+  ⚠ rule.order_not_null — WARN: Found null values in critical order fields
     customer_id: 1 null(s) (7.7%)
   ✓ rule.valid_prices — PASSED
   ✓ profile.products_stats — completed
@@ -367,7 +369,7 @@ Executing 10 node(s)...
 
 1. Seeknal planned the execution order, respecting dependencies (sources first, then profiles, then rules and transforms).
 2. Both sources loaded successfully — 13 raw orders and 6 products.
-3. The **order rules failed** as expected: the raw orders still contain a negative revenue row and a null customer ID.
+3. The **order rules warned** as expected: the raw orders still contain a negative revenue row and a null customer ID. Because these rules use `severity: warn`, the pipeline continues.
 4. The **product rules passed**: all prices are between $0 and $10,000, no nulls exist, average price ($85.58) is well under $500, and there are 5 distinct categories.
 5. Both profiles computed statistics that the `products_quality` rule consumed.
 6. The cleaned transforms still produced correct output because `orders_cleaned` filters out the bad rows before aggregation.
@@ -429,7 +431,7 @@ Verify you have completed every step:
 
 - [ ] Created `seeknal/rules/order_revenue_valid.yml` — range check on revenue
 - [ ] Created `seeknal/rules/order_not_null.yml` — null check on critical fields
-- [ ] Ran the pipeline and saw both order rules **fail** on raw data
+- [ ] Ran the pipeline and saw both order rules **warn** on raw data
 - [ ] Created `data/products.csv` with 6 products
 - [ ] Created `seeknal/sources/products.yml`
 - [ ] Created `seeknal/profiles/products_stats.yml` — full profile

@@ -9,5 +9,5 @@ rule:
   params:
     max_null_percentage: 0.0
 params:
-  severity: error
+  severity: warn
   error_message: "Found null values in critical order fields"
