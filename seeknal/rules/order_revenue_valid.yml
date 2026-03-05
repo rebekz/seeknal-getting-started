@@ -1,0 +1,14 @@
+kind: rule
+name: order_revenue_valid
+description: "Revenue must not be negative in raw orders"
+inputs:
+  - ref: source.raw_orders
+rule:
+  type: range
+  column: revenue
+  params:
+    min_val: 0
+    max_val: 100000
+params:
+  severity: warn
+  error_message: "Found orders with invalid revenue values"

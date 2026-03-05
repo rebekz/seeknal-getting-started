@@ -1,0 +1,13 @@
+kind: rule
+name: order_not_null
+description: "Critical fields must not be null in raw orders"
+inputs:
+  - ref: source.raw_orders
+rule:
+  type: "null"
+  columns: [customer_id, order_date, status]
+  params:
+    max_null_percentage: 0.0
+params:
+  severity: warn
+  error_message: "Found null values in critical order fields"
