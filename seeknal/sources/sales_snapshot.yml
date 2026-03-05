@@ -3,3 +3,7 @@ name: sales_snapshot
 description: "Quarterly sales snapshot from Parquet"
 source: parquet
 table: "data/sales_snapshot.parquet"
+columns:
+  product_id: "Product identifier"
+  total_units_sold: "Total units sold in the period"
+  period: "Reporting period (e.g., 2025-Q4)"

@@ -39,6 +39,11 @@ measures:
     agg: average
     description: "Average order value"
 
+  - name: unique_customers
+    expr: customer_id
+    agg: count_distinct
+    description: "Count of distinct customers"
+
 metrics:
   - name: avg_order_value_ratio
     type: ratio

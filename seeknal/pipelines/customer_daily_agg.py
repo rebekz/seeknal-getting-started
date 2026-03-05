@@ -25,7 +25,7 @@ def customer_daily_agg(ctx):
             customer_id,
             region,
             CAST(order_date AS DATE) AS order_date,
-            CAST('2026-01-21' AS DATE) AS application_date,
+            CURRENT_DATE AS application_date,
             CAST(SUM(revenue) AS DOUBLE) AS daily_amount,
             CAST(COUNT(*) AS BIGINT) AS daily_count
         FROM txn
