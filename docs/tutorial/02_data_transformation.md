@@ -61,9 +61,9 @@ Draft the cleaning transform:
 seeknal draft transform orders_cleaned
 ```
 
-Edit the generated file with the cleaning logic.
+Edit the draft file with the cleaning logic.
 
-**`seeknal/transforms/orders_cleaned.yml`**
+**`draft_transform_orders_cleaned.yml`**
 
 ```yaml
 kind: transform
@@ -113,8 +113,8 @@ Here is what each piece does:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/transforms/orders_cleaned.yml
-seeknal apply seeknal/transforms/orders_cleaned.yml
+seeknal dry-run draft_transform_orders_cleaned.yml
+seeknal apply draft_transform_orders_cleaned.yml
 ```
 
 ---
@@ -184,7 +184,7 @@ Draft, edit, validate, and apply:
 seeknal draft transform daily_revenue
 ```
 
-**`seeknal/transforms/daily_revenue.yml`**
+**`draft_transform_daily_revenue.yml`**
 
 ```yaml
 kind: transform
@@ -215,8 +215,8 @@ transform: |
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/transforms/daily_revenue.yml
-seeknal apply seeknal/transforms/daily_revenue.yml
+seeknal dry-run draft_transform_daily_revenue.yml
+seeknal apply draft_transform_daily_revenue.yml
 ```
 
 Notice the `inputs` field references `transform.orders_cleaned` — not the raw source. This creates a chain of dependencies.
@@ -245,14 +245,14 @@ The `draft` command scaffolds a new node file with the correct structure.
 seeknal draft transform my_new_transform
 ```
 
-This creates a template YAML file you can fill in. You do not need to memorize the YAML schema — `draft` gives you the skeleton.
+This creates `draft_transform_my_new_transform.yml` in the project root. You do not need to memorize the YAML schema — `draft` gives you the skeleton.
 
 ### dry-run — Validate Without Executing
 
 The `dry-run` command checks a node file for errors without actually running it.
 
 ```bash
-seeknal dry-run seeknal/transforms/daily_revenue.yml
+seeknal dry-run draft_transform_daily_revenue.yml
 ```
 
 This validates:
@@ -269,16 +269,16 @@ If there is a typo in your SQL or a missing dependency, `dry-run` catches it bef
 The `apply` command runs a single node (and its dependencies if needed).
 
 ```bash
-seeknal apply seeknal/transforms/daily_revenue.yml
+seeknal apply draft_transform_daily_revenue.yml
 ```
 
-This executes the transform and materializes the output.
+This moves the draft to its proper location (e.g., `seeknal/transforms/`) and executes the node.
 
 ### The Full Workflow
 
 ```
 draft  ──>  dry-run  ──>  apply
-(scaffold)  (validate)    (execute)
+(scaffold)  (validate)    (move & execute)
 ```
 
 > **Industry context:** At companies like Stripe and Airbnb, data pipeline changes go through a review process similar to code review. You would never deploy code without testing it first — the same principle applies to data pipelines. A bad transform can corrupt downstream dashboards, ML models, and business reports. The draft, dry-run, apply workflow is Seeknal's built-in safety net.
