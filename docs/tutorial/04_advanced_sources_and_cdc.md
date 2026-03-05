@@ -78,6 +78,12 @@ This is a classic CDC pattern: the updates file contains both **corrections** to
 
 Register the updates file as a Seeknal source.
 
+```bash
+seeknal draft source orders_updates
+```
+
+Edit the generated file:
+
 **seeknal/sources/orders_updates.yml**
 
 ```yaml
@@ -95,6 +101,13 @@ columns:
   items: "Number of items"
 ```
 
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/sources/orders_updates.yml
+seeknal apply seeknal/sources/orders_updates.yml
+```
+
 Note the description: "may overlap with raw_orders." This is the key characteristic of CDC data — some `order_id` values exist in both the original and the updates file. The merge transform must decide which version to keep.
 
 ---
@@ -102,6 +115,12 @@ Note the description: "may overlap with raw_orders." This is the key characteris
 ## Step 4.3: Create the CDC Merge Transform
 
 This is the core pattern of this module. The merge transform combines the cleaned original orders with the CDC updates, keeping only the latest version of each order.
+
+```bash
+seeknal draft transform orders_merged
+```
+
+Edit the generated file:
 
 **seeknal/transforms/orders_merged.yml**
 
@@ -139,6 +158,13 @@ transform: |
           CASE WHEN record_source = 'update' THEN 0 ELSE 1 END,
           processed_at DESC
   ) = 1
+```
+
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/transforms/orders_merged.yml
+seeknal apply seeknal/transforms/orders_merged.yml
 ```
 
 This transform uses a four-step CDC merge pattern that is standard across the industry.
@@ -204,6 +230,13 @@ transform: |
   ORDER BY order_date
 ```
 
+After editing, validate and apply:
+
+```bash
+seeknal dry-run seeknal/transforms/daily_revenue.yml
+seeknal apply seeknal/transforms/daily_revenue.yml
+```
+
 The only changes from Module 2 are:
 
 1. **`inputs`** now references `transform.orders_merged` instead of `transform.orders_cleaned`
@@ -250,7 +283,13 @@ This file has three intentional quality issues:
 | 4 | EVT-004 | `product_id` is `PRD-999` — does not exist in the product catalog |
 | 7 | EVT-001 | Duplicate `event_id` — same event sent twice (common in distributed systems) |
 
-Register it as a Seeknal source.
+Register it as a Seeknal source:
+
+```bash
+seeknal draft source sales_events
+```
+
+Edit the generated file:
 
 **seeknal/sources/sales_events.yml**
 
@@ -268,6 +307,13 @@ columns:
   region: "Sales region"
 ```
 
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/sources/sales_events.yml
+seeknal apply seeknal/sources/sales_events.yml
+```
+
 The only difference from a CSV source is `source: jsonl`. Seeknal handles the format parsing automatically.
 
 ---
@@ -277,6 +323,12 @@ The only difference from a CSV source is `source: jsonl`. Seeknal handles the fo
 Data warehouses and analytics systems typically export snapshots in **Parquet** format — a columnar, compressed binary format that is dramatically faster to read than CSV for analytical queries.
 
 Create a Parquet source definition. (Assume the Parquet file was exported from a warehouse system.)
+
+```bash
+seeknal draft source sales_snapshot
+```
+
+Edit the generated file:
 
 **seeknal/sources/sales_snapshot.yml**
 
@@ -290,6 +342,13 @@ columns:
   product_id: "Product identifier"
   total_units_sold: "Total units sold in the period"
   period: "Reporting period (e.g., 2025-Q4)"
+```
+
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/sources/sales_snapshot.yml
+seeknal apply seeknal/sources/sales_snapshot.yml
 ```
 
 ### When to Use Each Format
@@ -313,6 +372,12 @@ Seeknal abstracts the format differences — you declare `source: csv`, `source:
 ## Step 4.7: Clean the Events Data
 
 Apply the same cleaning patterns you learned in Module 2 to the sales events: remove null quantities and deduplicate by `event_id`.
+
+```bash
+seeknal draft transform events_cleaned
+```
+
+Edit the generated file:
 
 **seeknal/transforms/events_cleaned.yml**
 
@@ -344,6 +409,13 @@ This transform applies two cleaning rules:
 
 The expected result is **5 rows** from the original 7: EVT-001 (deduplicated to the Jan 13 version), EVT-002, EVT-004, EVT-005, and EVT-006.
 
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/transforms/events_cleaned.yml
+seeknal apply seeknal/transforms/events_cleaned.yml
+```
+
 > **Note:** EVT-004 references `PRD-999`, which does not exist in a product catalog. We are not filtering it here because referential integrity checks belong in a separate validation step. You could add a join-based rule in a later module to catch orphaned references.
 
 ---
@@ -351,6 +423,10 @@ The expected result is **5 rows** from the original 7: EVT-001 (deduplicated to 
 ## Step 4.8: Add Quality Rules for Events
 
 Add two quality rules that validate the cleaned events data. These rules run automatically as part of the pipeline and will fail the build if the data violates expectations.
+
+```bash
+seeknal draft rule not_null_quantity
+```
 
 **seeknal/rules/not_null_quantity.yml**
 
@@ -370,7 +446,18 @@ params:
   error_message: "Found null quantity values after cleaning"
 ```
 
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/rules/not_null_quantity.yml
+seeknal apply seeknal/rules/not_null_quantity.yml
+```
+
 This rule asserts that after cleaning, zero percent of `quantity` values are null. If the cleaning transform has a bug that lets nulls through, this rule catches it.
+
+```bash
+seeknal draft rule positive_quantity
+```
 
 **seeknal/rules/positive_quantity.yml**
 
@@ -392,6 +479,13 @@ params:
 ```
 
 This rule asserts that every `quantity` value falls between 1 and 10,000. A quantity of 0 or negative would indicate corrupted data; a quantity above 10,000 would likely be an application error.
+
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/rules/positive_quantity.yml
+seeknal apply seeknal/rules/positive_quantity.yml
+```
 
 Together, these two rules form a **quality gate** — the pipeline will not produce results from bad data.
 

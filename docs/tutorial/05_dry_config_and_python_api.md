@@ -145,6 +145,12 @@ When you write `WHERE {{rules.hasQuantity}}` in a transform, Seeknal injects the
 
 Now use the common configuration to build a transform that joins sales events with the product catalog. Instead of hardcoding column names, reference the template variables.
 
+```bash
+seeknal draft transform sales_enriched
+```
+
+Edit the generated file:
+
 **`seeknal/transforms/sales_enriched.yml`**
 
 ```yaml
@@ -190,6 +196,13 @@ LEFT JOIN ref('source.products') p
     ON e.product_id = p.product_id
 ```
 
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/transforms/sales_enriched.yml
+seeknal apply seeknal/transforms/sales_enriched.yml
+```
+
 The `LEFT JOIN` is intentional. Recall from Module 4 that `events_cleaned` contains EVT-004 with `product_id = PRD-999`, which does not exist in the product catalog. A LEFT JOIN keeps this row with NULL product fields instead of silently dropping it. In production, orphan references like this are investigated — they might indicate a catalog sync delay, a data entry error, or a product that was deleted.
 
 ---
@@ -197,6 +210,12 @@ The `LEFT JOIN` is intentional. Recall from Module 4 that `events_cleaned` conta
 ## Step 5.5: Build sales_summary Using Common Config
 
 Create an aggregation transform that summarizes revenue by product category, using template variables for column references and the shared `revenueShare` expression.
+
+```bash
+seeknal draft transform sales_summary
+```
+
+Edit the generated file:
 
 **`seeknal/transforms/sales_summary.yml`**
 
@@ -227,6 +246,13 @@ Three common config references in one transform:
 | `{{events.quantityCol}}` | `quantity` | `common/sources.yml` |
 | `{{transformations.revenueShare}}` | `ROUND(total_revenue * 100.0 / SUM(total_revenue) OVER (), 2)` | `common/transformations.yml` |
 | `{{rules.completedOrder}}` | `category IS NOT NULL` | `common/rules.yml` |
+
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/transforms/sales_summary.yml
+seeknal apply seeknal/transforms/sales_summary.yml
+```
 
 The `WHERE {{rules.completedOrder}}` clause filters out the orphan EVT-004 row (where `category IS NULL` because `PRD-999` does not exist). This is the same row that came through the LEFT JOIN with NULLs — now it is excluded from the summary.
 

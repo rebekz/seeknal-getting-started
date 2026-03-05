@@ -56,10 +56,14 @@ seeknal 0.x.x
 
 ## Step 1.2: Create Your Project
 
+Create a **new folder** outside this tutorial repository for your project work. The tutorial docs are reference material — your actual pipeline code goes in a separate directory.
+
 ```bash
-mkdir ecommerce-pipeline && cd ecommerce-pipeline
+mkdir ~/ecommerce-pipeline && cd ~/ecommerce-pipeline
 seeknal init --name ecommerce-pipeline
 ```
+
+> **Important:** Do not work inside the tutorial repository itself. Create a fresh directory (e.g., `~/ecommerce-pipeline`) so you have a clean workspace. You can keep the tutorial docs open in another window for reference.
 
 Seeknal generates a project scaffold. Inspect it:
 
@@ -276,7 +280,17 @@ Exit the REPL:
 
 ## Step 1.6: Create Your First Source
 
-A **source node** tells Seeknal where to find raw data and how to read it. Create the source definition file.
+A **source node** tells Seeknal where to find raw data and how to read it. You will use the **draft → dry-run → apply** workflow — the standard safety process for creating pipeline artifacts.
+
+### Draft the source template
+
+```bash
+seeknal draft source raw_orders
+```
+
+This generates a template file at `seeknal/sources/raw_orders.yml`. Now edit it with the actual source configuration.
+
+### Edit the source definition
 
 **seeknal/sources/raw_orders.yml**
 
@@ -297,6 +311,24 @@ columns:                        # Column documentation (optional but recommended
   items: "Number of items in the order"
 ```
 
+### Validate with dry-run
+
+```bash
+seeknal dry-run seeknal/sources/raw_orders.yml
+```
+
+This checks that the YAML syntax is correct, the referenced file exists, and the schema can be inferred — all without loading any data.
+
+### Apply the source
+
+```bash
+seeknal apply seeknal/sources/raw_orders.yml
+```
+
+This executes the source node and materializes the output.
+
+> **The draft → dry-run → apply workflow** is how you will create every pipeline artifact throughout this tutorial. `draft` scaffolds the file, `dry-run` validates without executing, and `apply` executes for real. This three-step process prevents broken pipelines from reaching production.
+
 Key fields explained:
 
 | Field | Purpose |
@@ -311,7 +343,7 @@ Key fields explained:
 
 ## Step 1.7: Run Your First Pipeline
 
-Run the pipeline:
+You already applied the source individually in the previous step. Now run the full pipeline to see Seeknal's orchestration in action:
 
 ```bash
 seeknal run

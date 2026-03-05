@@ -57,11 +57,13 @@ Metrics          →  define HOW to compute business KPIs from measures
 
 ## Step 7.2: Create the Semantic Model
 
-Create the semantic models directory.
+Draft the semantic model:
 
 ```bash
-mkdir -p seeknal/semantic_models
+seeknal draft semantic_model orders
 ```
+
+Edit the generated file:
 
 **`seeknal/semantic_models/orders.yml`**
 
@@ -132,6 +134,13 @@ metrics:
       - total_revenue
       - unique_customers
     description: "Average revenue per unique customer"
+```
+
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/semantic_models/orders.yml
+seeknal apply seeknal/semantic_models/orders.yml
 ```
 
 Walk through each section.
@@ -223,8 +232,10 @@ revenue_per_customer = SUM(revenue) / COUNT(DISTINCT customer_id)
 Exposures define how downstream consumers access your data — the final link from pipeline to delivery.
 
 ```bash
-mkdir -p seeknal/exposures
+seeknal draft exposure revenue_export
 ```
+
+Edit the generated file:
 
 **`seeknal/exposures/revenue_export.yml`**
 
@@ -249,6 +260,13 @@ params:
 | `depends_on` | Which nodes feed this exposure |
 | `tags` | Labels for filtering and organization |
 | `params` | Format and destination configuration |
+
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/exposures/revenue_export.yml
+seeknal apply seeknal/exposures/revenue_export.yml
+```
 
 Exposures answer critical operational questions: "Who breaks if I change this transform?" "Who owns this data?" "How often is it delivered?"
 

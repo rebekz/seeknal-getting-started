@@ -53,6 +53,12 @@ By the end of this module you will have:
 In Module 1 you spotted order `ORD-005` with revenue of `-10.00`.
 Create a rule that catches this automatically.
 
+```bash
+seeknal draft rule order_revenue_valid
+```
+
+Edit the generated file:
+
 **`seeknal/rules/order_revenue_valid.yml`**
 
 ```yaml
@@ -79,12 +85,25 @@ Key fields:
 - `severity: warn` — the pipeline **logs a warning** but continues execution. (Use `severity: error` in production when a violation should halt the pipeline.)
 - The rule references `source.raw_orders`, which still contains the original messy data including that negative revenue row.
 
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/rules/order_revenue_valid.yml
+seeknal apply seeknal/rules/order_revenue_valid.yml
+```
+
 ---
 
 ## Step 3.2 — Create a Null Check Rule
 
 The raw orders data also contains null values in critical fields.
 Add a second rule to catch those.
+
+```bash
+seeknal draft rule order_not_null
+```
+
+Edit the generated file:
 
 **`seeknal/rules/order_not_null.yml`**
 
@@ -113,6 +132,13 @@ Two rule types compared:
 | Key param | `min_val`, `max_val` | `max_null_percentage` |
 
 Setting `max_null_percentage: 0.0` means zero tolerance — even a single null triggers a warning.
+
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/rules/order_not_null.yml
+seeknal apply seeknal/rules/order_not_null.yml
+```
 
 ---
 
@@ -171,7 +197,13 @@ PRD-006,Noise Cancelling Headphones,Electronics,199.99,2025-10-15
 Six products across five categories with prices ranging from $28.50 to $199.99.
 This dataset is intentionally clean — no nulls, no negatives, no duplicates.
 
-Register it as a source.
+Register it as a source:
+
+```bash
+seeknal draft source products
+```
+
+Edit the generated file:
 
 **`seeknal/sources/products.yml`**
 
@@ -189,6 +221,13 @@ columns:
   launch_date: "Product launch date"
 ```
 
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/sources/products.yml
+seeknal apply seeknal/sources/products.yml
+```
+
 This follows the same pattern as `raw_orders.yml` from Module 1.
 
 ---
@@ -199,6 +238,10 @@ Before writing quality rules for a new dataset, profile it first.
 Profiling computes statistics that reveal the shape and distribution of your data.
 
 ### Full Profile
+
+```bash
+seeknal draft profile products_stats
+```
 
 **`seeknal/profiles/products_stats.yml`**
 
@@ -223,9 +266,20 @@ A full profile with no column restrictions computes the following for every colu
 | `min` | Minimum value |
 | `max` | Maximum value |
 
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/profiles/products_stats.yml
+seeknal apply seeknal/profiles/products_stats.yml
+```
+
 ### Focused Profile
 
 Sometimes you only care about specific columns.
+
+```bash
+seeknal draft profile products_price_stats
+```
 
 **`seeknal/profiles/products_price_stats.yml`**
 
@@ -246,6 +300,13 @@ Key differences from the full profile:
 - `columns: [price, category]` — restricts profiling to only these two columns.
 - `max_top_values: 3` — reports the 3 most frequent values per column.
 
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/profiles/products_price_stats.yml
+seeknal apply seeknal/profiles/products_price_stats.yml
+```
+
 Profile results are not just informational — downstream `rule` nodes can reference them to enforce thresholds based on actual statistics.
 
 ---
@@ -253,6 +314,10 @@ Profile results are not just informational — downstream `rule` nodes can refer
 ## Step 3.6 — Price Range Validation
 
 Add a validation rule for product prices.
+
+```bash
+seeknal draft rule valid_prices
+```
 
 **`seeknal/rules/valid_prices.yml`**
 
@@ -286,12 +351,23 @@ When to use each severity:
 Use `error` for violations that would corrupt downstream results.
 Use `warn` for anomalies that deserve investigation but are not necessarily wrong.
 
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/rules/valid_prices.yml
+seeknal apply seeknal/rules/valid_prices.yml
+```
+
 ---
 
 ## Step 3.7 — Profile-Based Quality Checks
 
 The most powerful quality checks use profile statistics as inputs.
 Instead of checking individual rows, you check aggregate metrics.
+
+```bash
+seeknal draft rule products_quality
+```
 
 **`seeknal/rules/products_quality.yml`**
 
@@ -335,6 +411,13 @@ source.products → profile.products_stats → rule.products_quality
 ```
 
 Seeknal resolves this automatically. The profile runs first, then the rule reads its output.
+
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/rules/products_quality.yml
+seeknal apply seeknal/rules/products_quality.yml
+```
 
 ---
 
