@@ -149,9 +149,9 @@ Now use the common configuration to build a transform that joins sales events wi
 seeknal draft transform sales_enriched
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**`seeknal/transforms/sales_enriched.yml`**
+**`draft_transform_sales_enriched.yml`**
 
 ```yaml
 kind: transform
@@ -199,8 +199,8 @@ LEFT JOIN ref('source.products') p
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/transforms/sales_enriched.yml
-seeknal apply seeknal/transforms/sales_enriched.yml
+seeknal dry-run draft_transform_sales_enriched.yml
+seeknal apply draft_transform_sales_enriched.yml
 ```
 
 The `LEFT JOIN` is intentional. Recall from Module 4 that `events_cleaned` contains EVT-004 with `product_id = PRD-999`, which does not exist in the product catalog. A LEFT JOIN keeps this row with NULL product fields instead of silently dropping it. In production, orphan references like this are investigated — they might indicate a catalog sync delay, a data entry error, or a product that was deleted.
@@ -215,9 +215,9 @@ Create an aggregation transform that summarizes revenue by product category, usi
 seeknal draft transform sales_summary
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**`seeknal/transforms/sales_summary.yml`**
+**`draft_transform_sales_summary.yml`**
 
 ```yaml
 kind: transform
@@ -250,8 +250,8 @@ Three common config references in one transform:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/transforms/sales_summary.yml
-seeknal apply seeknal/transforms/sales_summary.yml
+seeknal dry-run draft_transform_sales_summary.yml
+seeknal apply draft_transform_sales_summary.yml
 ```
 
 The `WHERE {{rules.completedOrder}}` clause filters out the orphan EVT-004 row (where `category IS NULL` because `PRD-999` does not exist). This is the same row that came through the LEFT JOIN with NULLs — now it is excluded from the summary.

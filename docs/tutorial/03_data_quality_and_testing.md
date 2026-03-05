@@ -57,9 +57,9 @@ Create a rule that catches this automatically.
 seeknal draft rule order_revenue_valid
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**`seeknal/rules/order_revenue_valid.yml`**
+**`draft_rule_order_revenue_valid.yml`**
 
 ```yaml
 kind: rule
@@ -88,8 +88,8 @@ Key fields:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/rules/order_revenue_valid.yml
-seeknal apply seeknal/rules/order_revenue_valid.yml
+seeknal dry-run draft_rule_order_revenue_valid.yml
+seeknal apply draft_rule_order_revenue_valid.yml
 ```
 
 ---
@@ -103,9 +103,9 @@ Add a second rule to catch those.
 seeknal draft rule order_not_null
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**`seeknal/rules/order_not_null.yml`**
+**`draft_rule_order_not_null.yml`**
 
 ```yaml
 kind: rule
@@ -136,8 +136,8 @@ Setting `max_null_percentage: 0.0` means zero tolerance — even a single null t
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/rules/order_not_null.yml
-seeknal apply seeknal/rules/order_not_null.yml
+seeknal dry-run draft_rule_order_not_null.yml
+seeknal apply draft_rule_order_not_null.yml
 ```
 
 ---
@@ -203,9 +203,9 @@ Register it as a source:
 seeknal draft source products
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**`seeknal/sources/products.yml`**
+**`draft_source_products.yml`**
 
 ```yaml
 kind: source
@@ -224,8 +224,8 @@ columns:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/sources/products.yml
-seeknal apply seeknal/sources/products.yml
+seeknal dry-run draft_source_products.yml
+seeknal apply draft_source_products.yml
 ```
 
 This follows the same pattern as `raw_orders.yml` from Module 1.
@@ -243,7 +243,7 @@ Profiling computes statistics that reveal the shape and distribution of your dat
 seeknal draft profile products_stats
 ```
 
-**`seeknal/profiles/products_stats.yml`**
+**`draft_profile_products_stats.yml`**
 
 ```yaml
 kind: profile
@@ -269,8 +269,8 @@ A full profile with no column restrictions computes the following for every colu
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/profiles/products_stats.yml
-seeknal apply seeknal/profiles/products_stats.yml
+seeknal dry-run draft_profile_products_stats.yml
+seeknal apply draft_profile_products_stats.yml
 ```
 
 ### Focused Profile
@@ -281,7 +281,7 @@ Sometimes you only care about specific columns.
 seeknal draft profile products_price_stats
 ```
 
-**`seeknal/profiles/products_price_stats.yml`**
+**`draft_profile_products_price_stats.yml`**
 
 ```yaml
 kind: profile
@@ -303,8 +303,8 @@ Key differences from the full profile:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/profiles/products_price_stats.yml
-seeknal apply seeknal/profiles/products_price_stats.yml
+seeknal dry-run draft_profile_products_price_stats.yml
+seeknal apply draft_profile_products_price_stats.yml
 ```
 
 Profile results are not just informational — downstream `rule` nodes can reference them to enforce thresholds based on actual statistics.
@@ -319,7 +319,7 @@ Add a validation rule for product prices.
 seeknal draft rule valid_prices
 ```
 
-**`seeknal/rules/valid_prices.yml`**
+**`draft_rule_valid_prices.yml`**
 
 ```yaml
 kind: rule
@@ -354,8 +354,8 @@ Use `warn` for anomalies that deserve investigation but are not necessarily wron
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/rules/valid_prices.yml
-seeknal apply seeknal/rules/valid_prices.yml
+seeknal dry-run draft_rule_valid_prices.yml
+seeknal apply draft_rule_valid_prices.yml
 ```
 
 ---
@@ -369,7 +369,7 @@ Instead of checking individual rows, you check aggregate metrics.
 seeknal draft rule products_quality
 ```
 
-**`seeknal/rules/products_quality.yml`**
+**`draft_rule_products_quality.yml`**
 
 ```yaml
 kind: rule
@@ -415,8 +415,8 @@ Seeknal resolves this automatically. The profile runs first, then the rule reads
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/rules/products_quality.yml
-seeknal apply seeknal/rules/products_quality.yml
+seeknal dry-run draft_rule_products_quality.yml
+seeknal apply draft_rule_products_quality.yml
 ```
 
 ---

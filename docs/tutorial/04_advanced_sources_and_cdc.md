@@ -82,9 +82,9 @@ Register the updates file as a Seeknal source.
 seeknal draft source orders_updates
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**seeknal/sources/orders_updates.yml**
+**draft_source_orders_updates.yml**
 
 ```yaml
 kind: source
@@ -104,8 +104,8 @@ columns:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/sources/orders_updates.yml
-seeknal apply seeknal/sources/orders_updates.yml
+seeknal dry-run draft_source_orders_updates.yml
+seeknal apply draft_source_orders_updates.yml
 ```
 
 Note the description: "may overlap with raw_orders." This is the key characteristic of CDC data — some `order_id` values exist in both the original and the updates file. The merge transform must decide which version to keep.
@@ -120,9 +120,9 @@ This is the core pattern of this module. The merge transform combines the cleane
 seeknal draft transform orders_merged
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**seeknal/transforms/orders_merged.yml**
+**draft_transform_orders_merged.yml**
 
 ```yaml
 kind: transform
@@ -163,8 +163,8 @@ transform: |
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/transforms/orders_merged.yml
-seeknal apply seeknal/transforms/orders_merged.yml
+seeknal dry-run draft_transform_orders_merged.yml
+seeknal apply draft_transform_orders_merged.yml
 ```
 
 This transform uses a four-step CDC merge pattern that is standard across the industry.
@@ -289,9 +289,9 @@ Register it as a Seeknal source:
 seeknal draft source sales_events
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**seeknal/sources/sales_events.yml**
+**draft_source_sales_events.yml**
 
 ```yaml
 kind: source
@@ -310,8 +310,8 @@ columns:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/sources/sales_events.yml
-seeknal apply seeknal/sources/sales_events.yml
+seeknal dry-run draft_source_sales_events.yml
+seeknal apply draft_source_sales_events.yml
 ```
 
 The only difference from a CSV source is `source: jsonl`. Seeknal handles the format parsing automatically.
@@ -328,9 +328,9 @@ Create a Parquet source definition. (Assume the Parquet file was exported from a
 seeknal draft source sales_snapshot
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**seeknal/sources/sales_snapshot.yml**
+**draft_source_sales_snapshot.yml**
 
 ```yaml
 kind: source
@@ -347,8 +347,8 @@ columns:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/sources/sales_snapshot.yml
-seeknal apply seeknal/sources/sales_snapshot.yml
+seeknal dry-run draft_source_sales_snapshot.yml
+seeknal apply draft_source_sales_snapshot.yml
 ```
 
 ### When to Use Each Format
@@ -377,9 +377,9 @@ Apply the same cleaning patterns you learned in Module 2 to the sales events: re
 seeknal draft transform events_cleaned
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**seeknal/transforms/events_cleaned.yml**
+**draft_transform_events_cleaned.yml**
 
 ```yaml
 kind: transform
@@ -412,8 +412,8 @@ The expected result is **5 rows** from the original 7: EVT-001 (deduplicated to 
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/transforms/events_cleaned.yml
-seeknal apply seeknal/transforms/events_cleaned.yml
+seeknal dry-run draft_transform_events_cleaned.yml
+seeknal apply draft_transform_events_cleaned.yml
 ```
 
 > **Note:** EVT-004 references `PRD-999`, which does not exist in a product catalog. We are not filtering it here because referential integrity checks belong in a separate validation step. You could add a join-based rule in a later module to catch orphaned references.
@@ -428,7 +428,7 @@ Add two quality rules that validate the cleaned events data. These rules run aut
 seeknal draft rule not_null_quantity
 ```
 
-**seeknal/rules/not_null_quantity.yml**
+**draft_rule_not_null_quantity.yml**
 
 ```yaml
 kind: rule
@@ -449,8 +449,8 @@ params:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/rules/not_null_quantity.yml
-seeknal apply seeknal/rules/not_null_quantity.yml
+seeknal dry-run draft_rule_not_null_quantity.yml
+seeknal apply draft_rule_not_null_quantity.yml
 ```
 
 This rule asserts that after cleaning, zero percent of `quantity` values are null. If the cleaning transform has a bug that lets nulls through, this rule catches it.
@@ -459,7 +459,7 @@ This rule asserts that after cleaning, zero percent of `quantity` values are nul
 seeknal draft rule positive_quantity
 ```
 
-**seeknal/rules/positive_quantity.yml**
+**draft_rule_positive_quantity.yml**
 
 ```yaml
 kind: rule
@@ -483,8 +483,8 @@ This rule asserts that every `quantity` value falls between 1 and 10,000. A quan
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/rules/positive_quantity.yml
-seeknal apply seeknal/rules/positive_quantity.yml
+seeknal dry-run draft_rule_positive_quantity.yml
+seeknal apply draft_rule_positive_quantity.yml
 ```
 
 Together, these two rules form a **quality gate** — the pipeline will not produce results from bad data.

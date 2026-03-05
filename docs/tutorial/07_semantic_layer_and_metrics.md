@@ -60,12 +60,12 @@ Metrics          →  define HOW to compute business KPIs from measures
 Draft the semantic model:
 
 ```bash
-seeknal draft semantic_model orders
+seeknal draft semantic-model orders
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**`seeknal/semantic_models/orders.yml`**
+**`draft_semantic_model_orders.yml`**
 
 ```yaml
 kind: semantic_model
@@ -139,8 +139,8 @@ metrics:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/semantic_models/orders.yml
-seeknal apply seeknal/semantic_models/orders.yml
+seeknal dry-run draft_semantic_model_orders.yml
+seeknal apply draft_semantic_model_orders.yml
 ```
 
 Walk through each section.
@@ -235,9 +235,9 @@ Exposures define how downstream consumers access your data — the final link fr
 seeknal draft exposure revenue_export
 ```
 
-Edit the generated file:
+Edit the draft file:
 
-**`seeknal/exposures/revenue_export.yml`**
+**`draft_exposure_revenue_export.yml`**
 
 ```yaml
 kind: exposure
@@ -264,8 +264,8 @@ params:
 Validate and apply:
 
 ```bash
-seeknal dry-run seeknal/exposures/revenue_export.yml
-seeknal apply seeknal/exposures/revenue_export.yml
+seeknal dry-run draft_exposure_revenue_export.yml
+seeknal apply draft_exposure_revenue_export.yml
 ```
 
 Exposures answer critical operational questions: "Who breaks if I change this transform?" "Who owns this data?" "How often is it delivered?"

@@ -288,11 +288,11 @@ A **source node** tells Seeknal where to find raw data and how to read it. You w
 seeknal draft source raw_orders
 ```
 
-This generates a template file at `seeknal/sources/raw_orders.yml`. Now edit it with the actual source configuration.
+This generates `draft_source_raw_orders.yml` in your project root. Edit it with the actual source configuration.
 
-### Edit the source definition
+### Edit the draft file
 
-**seeknal/sources/raw_orders.yml**
+**draft_source_raw_orders.yml**
 
 ```yaml
 kind: source                    # This node loads external data into the pipeline
@@ -314,7 +314,7 @@ columns:                        # Column documentation (optional but recommended
 ### Validate with dry-run
 
 ```bash
-seeknal dry-run seeknal/sources/raw_orders.yml
+seeknal dry-run draft_source_raw_orders.yml
 ```
 
 This checks that the YAML syntax is correct, the referenced file exists, and the schema can be inferred — all without loading any data.
@@ -322,12 +322,12 @@ This checks that the YAML syntax is correct, the referenced file exists, and the
 ### Apply the source
 
 ```bash
-seeknal apply seeknal/sources/raw_orders.yml
+seeknal apply draft_source_raw_orders.yml
 ```
 
-This executes the source node and materializes the output.
+This validates the draft, moves it to `seeknal/sources/raw_orders.yml`, and executes the source node.
 
-> **The draft → dry-run → apply workflow** is how you will create every pipeline artifact throughout this tutorial. `draft` scaffolds the file, `dry-run` validates without executing, and `apply` executes for real. This three-step process prevents broken pipelines from reaching production.
+> **The draft → dry-run → apply workflow** is how you will create every pipeline artifact throughout this tutorial. `draft` scaffolds a draft file in the project root, `dry-run` validates the draft without executing, and `apply` moves it to the proper location and executes it. This three-step process prevents broken pipelines from reaching production.
 
 Key fields explained:
 
