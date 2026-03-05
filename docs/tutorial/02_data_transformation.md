@@ -55,11 +55,13 @@ Recall the 5 quality issues you found in Module 1's REPL exploration:
 | ORD-007 | Negative items (-1) | Set to 0 |
 | ORD-001 | Duplicate `order_id` (appears twice) | Keep latest record |
 
-Create the transforms directory and the cleaning transform file.
+Draft the cleaning transform:
 
 ```bash
-mkdir -p seeknal/transforms
+seeknal draft transform orders_cleaned
 ```
+
+Edit the generated file with the cleaning logic.
 
 **`seeknal/transforms/orders_cleaned.yml`**
 
@@ -107,6 +109,13 @@ Here is what each piece does:
 | `WHERE customer_id IS NOT NULL` | Drops rows where `customer_id` is missing |
 | `QUALIFY ROW_NUMBER() OVER (...)` | Keeps only the latest record per `order_id` (deduplication) |
 | `CURRENT_TIMESTAMP AS processed_at` | Adds an audit column recording when the transform ran |
+
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/transforms/orders_cleaned.yml
+seeknal apply seeknal/transforms/orders_cleaned.yml
+```
 
 ---
 
@@ -169,6 +178,12 @@ This is simple now, but DAGs in production can have hundreds of nodes. The key r
 
 Now build a second transform that summarizes the cleaned orders into daily revenue metrics. This transform depends on `orders_cleaned`, not on the raw source.
 
+Draft, edit, validate, and apply:
+
+```bash
+seeknal draft transform daily_revenue
+```
+
 **`seeknal/transforms/daily_revenue.yml`**
 
 ```yaml
@@ -195,6 +210,13 @@ transform: |
   FROM ref('transform.orders_cleaned')
   GROUP BY order_date
   ORDER BY order_date
+```
+
+Validate and apply:
+
+```bash
+seeknal dry-run seeknal/transforms/daily_revenue.yml
+seeknal apply seeknal/transforms/daily_revenue.yml
 ```
 
 Notice the `inputs` field references `transform.orders_cleaned` — not the raw source. This creates a chain of dependencies.
